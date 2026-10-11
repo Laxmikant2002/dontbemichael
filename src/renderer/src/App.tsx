@@ -69,6 +69,8 @@ export function App() {
   const godId = useStore(s => s.agents.find((a) => a.isGod)?.id) ?? 'god';
 
   const [config, setConfig] = useState<HarnessConfig | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
+  const [configAttempt, setConfigAttempt] = useState(0);
   // Is the office folder there? Checked once per launch. 'ok' goes straight to
   // the floor; 'missing' (moved, renamed or deleted) shows OfficeFolderMissing.
   // There is no picker on a normal launch any more: switching folders on
@@ -105,6 +107,7 @@ export function App() {
   // Initial config load
   useEffect(() => {
     let cancelled = false;
+    setConfigError(null);
     window.cth.getConfig().then(c => {
       if (cancelled) return;
       setConfig(c);
@@ -125,15 +128,19 @@ export function App() {
       const withTriggers = c as HarnessConfig;
       useStore.getState().setWebhookTriggers(withTriggers.webhookTriggers ?? []);
       useStore.getState().setOrgTrigger(withTriggers.orgTrigger ?? DEFAULT_ORG_TRIGGER);
+    }).catch((error: unknown) => {
+      if (!cancelled) setConfigError(error instanceof Error ? error.message : String(error));
     });
     // Mirror BYOK OpenAI key presence (boolean only; the key never leaves main) so the
     // Realtime Michael voice toggle can gate on it. Lives in the secret broker, not
     // config — so fetch it rather than derive from c.
     window.cth.realtimeHasOpenAiKey().then(has => {
       if (!cancelled) useStore.getState().setHasOpenAiKey(has);
+    }).catch(() => {
+      if (!cancelled) useStore.getState().setHasOpenAiKey(false);
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [configAttempt]);
 
   // Free Flow entry point B — hold-Option (⌥) to talk. In-renderer push-to-talk
   // for whichever agent the user is viewing; gated on the flag, terminal-safe
@@ -372,6 +379,20 @@ export function App() {
   }, []);
 
   if (!config) {
+    if (configError) {
+      return (
+        <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--cth-cream-100)', padding: 24 }}>
+          <div role="alert" style={{ width: 420, maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: 24, background: 'var(--cth-card)', borderRadius: 'var(--cth-r-2xl)', boxShadow: 'inset 0 0 0 1px var(--cth-line), var(--cth-shadow-lg)' }}>
+            <h1 style={{ margin: 0, fontSize: 18, color: 'var(--cth-ink)' }}>{t('shell.startupErrorTitle')}</h1>
+            <p style={{ margin: 0, fontSize: 13, lineHeight: '19px', color: 'var(--cth-ink-2)' }}>{t('shell.startupErrorBody')}</p>
+            <code style={{ padding: '9px 10px', overflowWrap: 'anywhere', fontSize: 11.5, color: 'var(--cth-coral-text)', background: 'var(--cth-coral-soft)', borderRadius: 'var(--cth-r-md)' }}>{configError}</code>
+            <PixelButton variant="primary" size="md" onClick={() => setConfigAttempt((attempt) => attempt + 1)}>
+              {t('shell.retryStartup')}
+            </PixelButton>
+          </div>
+        </div>
+      );
+    }
     return <div style={{ width: '100vw', height: '100vh', background: 'var(--cth-cream-100)' }} />;
   }
 

@@ -1988,6 +1988,9 @@
     "dismiss": "Leave {{name}} out",
     "noAgentTitle": "Your office is empty",
     "noAgentBody": "Hire your first team member to get started.",
+    "startupErrorTitle": "The office could not start",
+    "startupErrorBody": "We couldn't load your office settings. Check the error below and try again.",
+    "retryStartup": "Try again",
     "send": "Send"
   },
   "studio": {

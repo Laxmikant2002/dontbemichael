@@ -1988,6 +1988,9 @@
     "dismiss": "لا تُعِد {{name}}",
     "noAgentTitle": "مكتبك فارغ",
     "noAgentBody": "وظّف أول عضو في فريقك لتبدأ.",
+    "startupErrorTitle": "تعذّر تشغيل المكتب",
+    "startupErrorBody": "تعذّر تحميل إعدادات مكتبك. تحقّق من الخطأ أدناه ثم حاول مرة أخرى.",
+    "retryStartup": "حاول مرة أخرى",
     "send": "إرسال"
   },
   "studio": {

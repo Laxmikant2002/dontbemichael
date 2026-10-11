@@ -67,6 +67,14 @@ test('a normal launch shows no picker; only a missing office shows the new scree
   assert.match(app, /onComplete=\{\(next\) => \{[\s\S]{0,200}?setConfig\(next\); setHomeState\('ok'\);\s*\}\}/);
 });
 
+test('startup config failures are visible and retryable instead of leaving a blank screen', () => {
+  const app = read('src/renderer/src/App.tsx');
+  assert.match(app, /getConfig\(\)[\s\S]*?catch\(\(error: unknown\) =>/);
+  assert.match(app, /setConfigError\(error instanceof Error \? error\.message : String\(error\)\)/);
+  assert.match(app, /configError[\s\S]*?role="alert"/);
+  assert.match(app, /setConfigAttempt\(\(attempt\) => attempt \+ 1\)/);
+});
+
 test('the missing screen only opens a folder that really holds an office', () => {
   const screen = read('src/renderer/src/components/OfficeFolderMissing.tsx');
   assert.match(screen, /if \(!status\?\.hasOffice\) \{\s*setError\(t\('officeMissing\.notAnOffice'\)\);/);

@@ -1988,6 +1988,9 @@
     "dismiss": "不带回 {{name}}",
     "noAgentTitle": "你的办公室还是空的",
     "noAgentBody": "招聘第一位团队成员即可开始。",
+    "startupErrorTitle": "办公室无法启动",
+    "startupErrorBody": "无法加载办公室设置。请查看下面的错误，然后重试。",
+    "retryStartup": "重试",
     "send": "发送"
   },
   "studio": {
